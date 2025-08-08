@@ -1,0 +1,193 @@
+import DebounceDemo from "../examples/DebounceDemo";
+
+# useDebounce
+
+A hook that delays updating a value until after a specified delay has passed since the last time it was updated. Perfect for search inputs, API calls, and performance optimization.
+
+## Installation
+
+```bash
+npm install react-hook-granth
+```
+
+## Basic Usage
+
+```tsx
+import { useDebounce } from 'react-hook-granth';
+import { useState } from 'react';
+
+function SearchInput() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  // This effect will only run when debouncedSearchTerm changes
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      // Perform search API call
+      searchAPI(debouncedSearchTerm);
+    }
+  }, [debouncedSearchTerm]);
+
+  return (
+    <input
+      type="text"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      placeholder="Search..."
+    />
+  );
+}
+```
+
+## Live Example
+
+<DebounceDemo />
+
+## API Reference
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `value` | `T` | The value to debounce |
+| `delay` | `number` | The delay in milliseconds |
+
+### Return Value
+
+| Type | Description |
+|------|-------------|
+| `T` | The debounced value |
+
+## Advanced Usage
+
+### Search with API Calls
+
+```tsx
+function SearchComponent() {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const debouncedQuery = useDebounce(query, 300);
+
+  useEffect(() => {
+    if (debouncedQuery) {
+      setLoading(true);
+      searchAPI(debouncedQuery)
+        .then(setResults)
+        .finally(() => setLoading(false));
+    } else {
+      setResults([]);
+    }
+  }, [debouncedQuery]);
+
+  return (
+    <div>
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search..."
+      />
+      {loading && <p>Searching...</p>}
+      {results.map(result => (
+        <div key={result.id}>{result.title}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+### Form Validation
+
+```tsx
+function ValidatedInput() {
+  const [email, setEmail] = useState('');
+  const [isValid, setIsValid] = useState(true);
+  const debouncedEmail = useDebounce(email, 500);
+
+  useEffect(() => {
+    if (debouncedEmail) {
+      setIsValid(validateEmail(debouncedEmail));
+    }
+  }, [debouncedEmail]);
+
+  return (
+    <div>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className={isValid ? 'valid' : 'invalid'}
+      />
+      {!isValid && <p>Please enter a valid email</p>}
+    </div>
+  );
+}
+```
+
+### Auto-save Feature
+
+```tsx
+function AutoSaveEditor() {
+  const [content, setContent] = useState('');
+  const [saveStatus, setSaveStatus] = useState('saved');
+  const debouncedContent = useDebounce(content, 1000);
+
+  useEffect(() => {
+    if (debouncedContent && saveStatus !== 'saved') {
+      setSaveStatus('saving');
+      saveToServer(debouncedContent)
+        .then(() => setSaveStatus('saved'))
+        .catch(() => setSaveStatus('error'));
+    }
+  }, [debouncedContent]);
+
+  const handleChange = (value: string) => {
+    setContent(value);
+    setSaveStatus('unsaved');
+  };
+
+  return (
+    <div>
+      <textarea
+        value={content}
+        onChange={(e) => handleChange(e.target.value)}
+      />
+      <p>Status: {saveStatus}</p>
+    </div>
+  );
+}
+```
+
+## Use Cases
+
+- **Search Inputs**: Delay API calls until user stops typing
+- **Form Validation**: Validate fields after user finishes input
+- **Auto-save**: Save content after user stops editing
+- **Resize Handlers**: Debounce window resize events
+- **Scroll Events**: Optimize scroll event handlers
+- **API Rate Limiting**: Prevent excessive API calls
+
+## Performance Benefits
+
+Using `useDebounce` can significantly improve your app's performance by:
+
+- **Reducing API Calls**: Only make requests when necessary
+- **Preventing UI Flickering**: Avoid rapid state updates
+- **Improving User Experience**: Smoother interactions
+- **Saving Bandwidth**: Fewer network requests
+- **Reducing Server Load**: Less frequent backend calls
+
+## TypeScript
+
+The hook is fully typed and works with any type:
+
+```tsx
+// String debouncing
+const debouncedString = useDebounce<string>('hello', 500);
+
+// Number debouncing
+const debouncedNumber = useDebounce<number>(42, 300);
+
+// Object debouncing
+const debouncedObject = useDebounce<User>(userObject, 1000);
+```

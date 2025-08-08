@@ -1,0 +1,109 @@
+import { Package, Download, Code, Zap } from 'lucide-react';
+
+# Getting Started
+
+Welcome to **react-hook-granth** - a collection of essential React hooks designed to simplify your development workflow and boost productivity.
+
+<div className="flex items-center space-x-2 mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+  <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+  <span className="text-blue-800 dark:text-blue-200 font-medium">
+    Production-ready hooks with TypeScript support
+  </span>
+</div>
+
+## Installation
+
+Install the package using your preferred package manager:
+
+```bash
+# npm
+npm install react-hook-granth
+
+# yarn
+yarn add react-hook-granth
+
+# pnpm
+pnpm add react-hook-granth
+```
+
+## Quick Start
+
+Import any hook and start using it immediately:
+
+```jsx
+import { useCounter, useDebounce } from 'react-hook-granth';
+
+function MyComponent() {
+  const { count, increment, decrement } = useCounter(0);
+  const debouncedCount = useDebounce(count, 500);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <p>Debounced: {debouncedCount}</p>
+      <button onClick={increment}>+</button>
+      <button onClick={decrement}>-</button>
+    </div>
+  );
+}
+```
+
+## Available Hooks
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
+  <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+    <h3 className="text-lg font-semibold mb-2">useCounter</h3>
+    <p className="text-gray-600 dark:text-gray-400 text-sm">
+      Manage counter state with increment, decrement, and reset functionality.
+    </p>
+  </div>
+  
+  <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+    <h3 className="text-lg font-semibold mb-2">useDebounce</h3>
+    <p className="text-gray-600 dark:text-gray-400 text-sm">
+      Debounce rapidly changing values to improve performance.
+    </p>
+  </div>
+  
+  <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+    <h3 className="text-lg font-semibold mb-2">useClickOutside</h3>
+    <p className="text-gray-600 dark:text-gray-400 text-sm">
+      Detect clicks outside of a specific element.
+    </p>
+  </div>
+  
+  <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+    <h3 className="text-lg font-semibold mb-2">useLocalStorage</h3>
+    <p className="text-gray-600 dark:text-gray-400 text-sm">
+      Sync state with localStorage automatically.
+    </p>
+  </div>
+</div>
+
+## Features
+
+- 🚀 **Zero Dependencies** - Lightweight and fast
+- 📦 **TypeScript Support** - Full type safety out of the box
+- 🎯 **Tree Shakeable** - Import only what you need
+- 🧪 **Well Tested** - Comprehensive test coverage
+- 📚 **Great Documentation** - Clear examples and API references
+
+## TypeScript
+
+All hooks are written in TypeScript and provide excellent type inference:
+
+```tsx
+import { useCounter } from 'react-hook-granth';
+
+// TypeScript automatically infers the correct types
+const { count, increment, decrement, reset } = useCounter(0);
+//      ^number  ^() => void  ^() => void   ^() => void
+```
+
+## Contributing
+
+We welcome contributions! Please check out our [GitHub repository](https://github.com/your-username/react-hook-granth) to get started.
+
+---
+
+Ready to explore? Check out the individual hook documentation in the sidebar to see live examples and detailed API references.

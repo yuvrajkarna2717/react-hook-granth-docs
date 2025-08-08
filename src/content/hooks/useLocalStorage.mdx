@@ -1,0 +1,328 @@
+import { useState } from 'react';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { Save, Trash2, RefreshCw, Database } from 'lucide-react';
+
+# useLocalStorage
+
+A hook that syncs state with localStorage, providing persistent storage that survives page refreshes and browser sessions.
+
+## Installation
+
+```bash
+npm install react-hook-granth
+```
+
+## Basic Usage
+
+```tsx
+import { useLocalStorage } from 'react-hook-granth';
+
+function UserPreferences() {
+  const [name, setName] = useLocalStorage('username', '');
+  const [theme, setTheme] = useLocalStorage('theme', 'light');
+
+  return (
+    <div>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Enter your name"
+      />
+      <select value={theme} onChange={(e) => setTheme(e.target.value)}>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+  );
+}
+```
+
+## Live Example
+<LocalStorageDemo />
+
+## API Reference
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `key` | `string` | The localStorage key to use |
+| `initialValue` | `T` | The initial value if no stored value exists |
+
+### Return Value
+
+| Type | Description |
+|------|-------------|
+| `[T, (value: T \| ((val: T) => T)) => void]` | A tuple containing the current value and a setter function |
+
+## Advanced Usage
+
+### Complex Object Storage
+
+```tsx
+interface UserSettings {
+  theme: 'light' | 'dark';
+  language: string;
+  notifications: {
+    email: boolean;
+    push: boolean;
+    sms: boolean;
+  };
+}
+
+function UserSettingsComponent() {
+  const [settings, setSettings] = useLocalStorage<UserSettings>('userSettings', {
+    theme: 'light',
+    language: 'en',
+    notifications: {
+      email: true,
+      push: false,
+      sms: false
+    }
+  });
+
+  const updateNotifications = (type: keyof UserSettings['notifications'], value: boolean) => {
+    setSettings(prev => ({
+      ...prev,
+      notifications: {
+        ...prev.notifications,
+        [type]: value
+      }
+    }));
+  };
+
+  return (
+    <div>
+      <select 
+        value={settings.theme} 
+        onChange={(e) => setSettings({...settings, theme: e.target.value as 'light' | 'dark'})}
+      >
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+      
+      <label>
+        <input
+          type="checkbox"
+          checked={settings.notifications.email}
+          onChange={(e) => updateNotifications('email', e.target.checked)}
+        />
+        Email Notifications
+      </label>
+    </div>
+  );
+}
+```
+
+### Shopping Cart Example
+
+```tsx
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+function ShoppingCart() {
+  const [cart, setCart] = useLocalStorage<CartItem[]>('shopping-cart', []);
+
+  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
+    setCart(prevCart => {
+      const existingItem = prevCart.find(cartItem => cartItem.id === item.id);
+      if (existingItem) {
+        return prevCart.map(cartItem =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      }
+      return [...prevCart, { ...item, quantity: 1 }];
+    });
+  };
+
+  const removeFromCart = (id: string) => {
+    setCart(prevCart => prevCart.filter(item => item.id !== id));
+  };
+
+  const getTotalPrice = () => {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  return (
+    <div>
+      <h2>Shopping Cart ({cart.length} items)</h2>
+      {cart.map(item => (
+        <div key={item.id}>
+          <span>{item.name} x {item.quantity}</span>
+          <span>${(item.price * item.quantity).toFixed(2)}</span>
+          <button onClick={() => removeFromCart(item.id)}>Remove</button>
+        </div>
+      ))}
+      <div>Total: ${getTotalPrice().toFixed(2)}</div>
+    </div>
+  );
+}
+```
+
+### Form Draft Auto-save
+
+```tsx
+interface FormData {
+  title: string;
+  content: string;
+  tags: string[];
+  isDraft: boolean;
+}
+
+function BlogPostForm() {
+  const [formData, setFormData] = useLocalStorage<FormData>('blog-draft', {
+    title: '',
+    content: '',
+    tags: [],
+    isDraft: true
+  });
+
+  const updateField = (field: keyof FormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const clearDraft = () => {
+    setFormData({
+      title: '',
+      content: '',
+      tags: [],
+      isDraft: true
+    });
+  };
+
+  const publishPost = async () => {
+    try {
+      await savePost({ ...formData, isDraft: false });
+      clearDraft();
+      alert('Post published successfully!');
+    } catch (error) {
+      alert('Failed to publish post');
+    }
+  };
+
+  return (
+    <form>
+      <input
+        value={formData.title}
+        onChange={(e) => updateField('title', e.target.value)}
+        placeholder="Post title"
+      />
+      <textarea
+        value={formData.content}
+        onChange={(e) => updateField('content', e.target.value)}
+        placeholder="Write your post content..."
+      />
+      <button type="button" onClick={publishPost}>
+        Publish
+      </button>
+      <button type="button" onClick={clearDraft}>
+        Clear Draft
+      </button>
+      {formData.title && (
+        <p>Draft auto-saved ✓</p>
+      )}
+    </form>
+  );
+}
+```
+
+## Use Cases
+
+- **User Preferences**: Theme, language, layout settings
+- **Shopping Carts**: Persist cart items between sessions
+- **Form Drafts**: Auto-save form data as user types
+- **Recently Viewed**: Track user's browsing history
+- **Favorites/Bookmarks**: Save user's favorite items
+- **Game Progress**: Save game state and progress
+- **Search History**: Remember previous searches
+- **UI State**: Remember collapsed/expanded panels
+
+## Error Handling
+
+The hook includes built-in error handling for common localStorage issues:
+
+```tsx
+// The hook handles these scenarios automatically:
+// - localStorage not available (private browsing)
+// - Storage quota exceeded
+// - Invalid JSON in stored data
+// - Network storage issues
+
+const [data, setData] = useLocalStorage('key', defaultValue);
+// Will fallback to defaultValue if any errors occur
+```
+
+## Best Practices
+
+### 1. Use Meaningful Keys
+
+```tsx
+// Good
+const [userPrefs, setUserPrefs] = useLocalStorage('user-preferences', {});
+
+// Avoid
+const [data, setData] = useLocalStorage('data', {});
+```
+
+### 2. Provide Sensible Defaults
+
+```tsx
+const [settings, setSettings] = useLocalStorage('app-settings', {
+  theme: 'light',
+  notifications: true,
+  autoSave: true
+});
+```
+
+### 3. Handle Large Objects Carefully
+
+```tsx
+// For large datasets, consider using a key-value approach
+const [userCache, setUserCache] = useLocalStorage('user-cache', new Map());
+
+// Or implement cleanup logic
+useEffect(() => {
+  const cleanup = () => {
+    if (largeData.length > 1000) {
+      setLargeData(largeData.slice(-500)); // Keep only recent items
+    }
+  };
+  cleanup();
+}, [largeData]);
+```
+
+## TypeScript
+
+The hook provides full TypeScript support with type inference:
+
+```tsx
+// Type is automatically inferred
+const [count, setCount] = useLocalStorage('count', 0); // number
+
+// Explicit typing for complex objects
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+const [user, setUser] = useLocalStorage<User | null>('current-user', null);
+```
+
+## Browser Compatibility
+
+This hook works in all browsers that support localStorage:
+
+- Chrome 4+
+- Firefox 3.5+
+- Safari 4+
+- Edge 12+
+- Internet Explorer 8+
+
+For browsers without localStorage support, the hook will function as regular state without persistence.
