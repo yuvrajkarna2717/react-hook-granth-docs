@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Layout } from './components/Layout';
 
@@ -12,7 +12,7 @@ import UseLocalStorageDoc from './content/hooks/useLocalStorage.mdx';
 function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Layout>
           <Routes>
             <Route path="/" element={<GettingStarted />} />
@@ -22,7 +22,7 @@ function App() {
             <Route path="/hooks/use-local-storage" element={<UseLocalStorageDoc />} />
           </Routes>
         </Layout>
-      </BrowserRouter>
+      </HashRouter>
     </ThemeProvider>
   );
 }
