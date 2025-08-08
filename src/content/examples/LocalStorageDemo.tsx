@@ -15,7 +15,7 @@ interface Todo {
   completed: boolean;
 }
 
-export const LocalStorageDemo = () => {
+const LocalStorageDemo = () => {
   const [name, setName] = useLocalStorage<string>("demo-name", "");
   const [age, setAge] = useLocalStorage<number>("demo-age", 0);
   const [preferences, setPreferences] = useLocalStorage<Preferences>(
